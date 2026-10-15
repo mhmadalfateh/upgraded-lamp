@@ -23,15 +23,19 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Extract Android project
+      - name: Extract project
         run: |
           sudo apt-get update
           sudo apt-get install -y unzip
           unzip -o Counter_Fatih_Android_Fixed.zip -d game
-          echo "Project files:"
-          ls -la game
           test -f game/settings.gradle
           test -f game/app/build.gradle
+
+      - name: Fix GameView constructor
+        run: |
+          FILE="game/app/src/main/java/com/counterfatih/game/MainActivity.java"
+          sed -i 's/new GameView()/new GameView(this)/g' "$FILE"
+          grep -n "setContentView" "$FILE"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
