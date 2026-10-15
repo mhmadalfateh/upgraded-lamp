@@ -14,14 +14,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout project
+      - name: Download project
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Install Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
+
+      - name: Install unzip
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Extract game files
+        run: |
+          unzip -o Counter_Fatih_Android_Fixed.zip -d game
+          ls -la game
+          test -f game/settings.gradle
+          test -f game/app/build.gradle
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -29,11 +39,11 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build APK
-        run: gradle --no-daemon assembleDebug
+        run: gradle --no-daemon -p game assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Counter-Fatih-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: game/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
